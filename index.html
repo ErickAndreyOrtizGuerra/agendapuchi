@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi Agenda Snoopy</title>
+<link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Comic+Neue:wght@400;700&family=Indie+Flower&family=Gloria+Hallelujah&family=Caveat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--r:#CC2936;--y:#FFD23F;--bl:#3B8EA5;--sk:#E8F4FD;--gr:#5B8C5A;--pk:#F4A0A0;--cr:#FFF9EC;--br:#8B6F47;--dk:#2D2D2D;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Comic Neue',sans-serif;background:var(--cr);min-height:100vh;overflow-x:hidden;}
+
+.clouds-bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden;}
+.cloud{position:absolute;background:white;border-radius:50%;opacity:.35;animation:floatC linear infinite;}
+@keyframes floatC{from{transform:translateX(-200px)}to{transform:translateX(calc(100vw + 200px))}}
+
+.header{position:relative;z-index:1;text-align:center;padding:2rem 1rem 1rem;background:linear-gradient(180deg,var(--sk) 0%,var(--cr) 100%);}
+.header-imgs{display:flex;justify-content:center;align-items:flex-end;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;min-height:120px;}
+.header-imgs img{height:90px;object-fit:contain;filter:drop-shadow(0 4px 10px rgba(0,0,0,.15));}
+.header-imgs img:nth-child(1){animation:bob1 3s ease-in-out infinite;}
+.header-imgs img:nth-child(2){animation:bob1 3s ease-in-out infinite .5s;}
+.header-imgs img:nth-child(3){animation:bob1 3s ease-in-out infinite 1s;}
+.header-imgs img:nth-child(4){animation:bob1 3s ease-in-out infinite 1.5s;}
+.header-imgs img:nth-child(5){animation:bob1 3s ease-in-out infinite 2s;}
+@keyframes bob1{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.title{font-family:'Indie Flower',cursive;font-size:2.8rem;color:var(--dk);font-weight:700;}.title span{color:var(--r);}
+.subtitle{font-family:'Indie Flower',cursive;font-size:1.1rem;color:var(--br);opacity:.8;margin-top:.2rem;}
+.hearts-row{display:flex;justify-content:center;gap:8px;margin:.8rem 0;}
+.mh{width:12px;height:12px;background:var(--pk);transform:rotate(45deg);position:relative;animation:pulse 2s ease-in-out infinite;}
+.mh::before,.mh::after{content:'';width:12px;height:12px;background:inherit;border-radius:50%;position:absolute;}
+.mh::before{left:-6px;top:0}.mh::after{left:0;top:-6px}
+.mh:nth-child(2){animation-delay:.3s;background:var(--r)}.mh:nth-child(2)::before,.mh:nth-child(2)::after{background:var(--r)}
+.mh:nth-child(3){animation-delay:.6s}
+@keyframes pulse{0%,100%{transform:rotate(45deg) scale(1)}50%{transform:rotate(45deg) scale(1.2)}}
+
+.nav{display:flex;justify-content:center;gap:.5rem;padding:1rem;position:sticky;top:0;z-index:100;background:var(--cr);flex-wrap:wrap;}
+.nav-tab{padding:.6rem 1.1rem;border:2px solid var(--r);border-radius:25px;background:#fff;font-family:'Indie Flower',cursive;font-size:1rem;color:var(--r);cursor:pointer;transition:all .3s;position:relative;}
+.nav-tab:hover,.nav-tab.active{background:var(--r);color:#fff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(204,41,54,.3);}
+.nav-tab.active::after{content:'🐾';position:absolute;font-size:.55rem;top:2px;right:5px;}
+
+.main{max-width:900px;margin:0 auto;padding:0 1rem 3rem;position:relative;z-index:1;min-height:500px;}
+.sec{position:absolute;width:100%;opacity:0;transform:translateY(30px) scale(.95);pointer-events:none;transition:all .5s cubic-bezier(0.34, 1.56, 0.64, 1);}
+.sec.active{position:relative;opacity:1;transform:translateY(0) scale(1);pointer-events:auto;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(30px) scale(.95)}to{opacity:1;transform:translateY(0) scale(1)}}
+.sec-title{font-family:'Indie Flower',cursive;font-size:2rem;color:var(--dk);text-align:center;margin-bottom:1.5rem;}
+.sec-title::after{content:'';display:block;width:60px;height:3px;background:var(--r);margin:.5rem auto;border-radius:2px;}
+.snoopy-deco{text-align:center;margin:1.5rem 0 .5rem;}
+.snoopy-deco img{height:110px;object-fit:contain;filter:drop-shadow(0 3px 8px rgba(0,0,0,.12));}
+
+.cal-box{background:#fff;border-radius:20px;box-shadow:0 8px 32px rgba(0,0,0,.1);overflow:hidden;border:3px solid var(--sk);}
+.cal-head{background:var(--r);color:#fff;padding:1.2rem;display:flex;justify-content:space-between;align-items:center;}
+.view-toggle{display:flex;gap:.3rem;background:rgba(255,255,255,.2);padding:.3rem;border-radius:20px;}
+.view-btn{padding:.4rem .8rem;border:none;border-radius:15px;background:transparent;color:#fff;font-family:'Indie Flower',cursive;font-size:.85rem;cursor:pointer;transition:all .3s;}
+.view-btn.active{background:#fff;color:var(--r);}
+.cal-head h3{font-family:'Indie Flower',cursive;font-size:1.4rem;}
+.cal-nav{background:none;border:2px solid #fff;color:#fff;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:1.2rem;display:flex;align-items:center;justify-content:center;transition:all .3s;}
+.cal-nav:hover{background:rgba(255,255,255,.2)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;padding:1rem;}
+.cal-dn{text-align:center;font-family:'Indie Flower',cursive;font-size:.85rem;color:var(--br);padding:.5rem 0;font-weight:600;}
+.cal-d{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:12px;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .3s;position:relative;color:var(--dk);}
+.cal-d:hover{background:var(--sk);transform:scale(1.1)}
+.cal-d.today{background:var(--r);color:#fff;box-shadow:0 2px 8px rgba(204,41,54,.4)}
+.cal-d.has-ev::after{content:'';position:absolute;bottom:4px;width:6px;height:6px;background:var(--y);border-radius:50%;border:1px solid var(--br);}
+.cal-d.om{opacity:.3}
+
+.notes-list{display:grid;gap:1rem;position:relative;}
+.notes-list::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background-image:radial-gradient(var(--br) 1px, transparent 1px);background-size:20px 20px;opacity:.15;pointer-events:none;z-index:0;border-radius:20px;}
+.note-card{background:#fff;border-radius:16px;padding:1.2rem;box-shadow:0 4px 20px rgba(0,0,0,.08);border-left:5px solid var(--y);position:relative;transition:all .4s cubic-bezier(0.34, 1.56, 0.64, 1);z-index:1;}
+.note-card:nth-child(4n+2){border-left-color:var(--r)}.note-card:nth-child(4n+3){border-left-color:var(--bl)}.note-card:nth-child(4n+4){border-left-color:var(--gr)}
+.note-card:hover{transform:translateY(-8px) scale(1.02);box-shadow:0 20px 40px rgba(0,0,0,.15),0 0 0 1px rgba(204,41,54,.1);}
+.note-card:hover::before{content:'';position:absolute;inset:-2px;background:linear-gradient(135deg,var(--r),var(--y),var(--bl));border-radius:18px;z-index:-1;opacity:.3;filter:blur(8px);}
+.note-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;}
+.note-t{font-family:'Indie Flower',cursive;font-size:1.2rem;color:var(--dk);}
+.note-date{font-size:.75rem;color:var(--br);opacity:.7}
+.note-text{font-size:.9rem;color:#555;line-height:1.6}
+.note-tag{display:inline-block;padding:.2rem .8rem;border-radius:12px;font-size:.7rem;font-weight:600;margin-top:.5rem;}
+.tag-love{background:#FFE0E0;color:var(--r)}.tag-fun{background:#FFF3D0;color:#9B7A1E}.tag-goal{background:#D0F0FF;color:var(--bl)}.tag-idea{background:#E0F5E0;color:var(--gr)}
+
+.wish-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;}
+.wish-card{background:#fff;border-radius:16px;padding:1.2rem;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.08);transition:all .4s cubic-bezier(0.34, 1.56, 0.64, 1);cursor:pointer;border:2px solid transparent;position:relative;overflow:hidden;}
+.wish-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:4px;background:linear-gradient(90deg,var(--r),var(--y),var(--bl));}
+.wish-card:hover{transform:translateY(-12px) rotate(-1deg);box-shadow:0 25px 50px rgba(0,0,0,.15),0 0 0 1px rgba(204,41,54,.1);border-color:var(--y);}
+.wish-card:hover::after{content:'';position:absolute;inset:-3px;background:linear-gradient(135deg,var(--r),var(--y),var(--bl));border-radius:19px;z-index:-1;opacity:.25;filter:blur(12px);}
+.wish-icon{font-size:2.5rem;margin-bottom:.5rem}.wish-title{font-family:'Indie Flower',cursive;font-size:1.1rem;color:var(--dk);margin-bottom:.3rem}
+.wish-desc{font-size:.8rem;color:#888;line-height:1.4}.wish-prio{font-size:.75rem;margin-top:.4rem;color:var(--br)}
+.wish-check{display:inline-block;width:24px;height:24px;border:2px solid var(--r);border-radius:50%;margin-top:.8rem;transition:all .3s;position:relative;}
+.wish-card.done .wish-check{background:var(--gr);border-color:var(--gr)}
+.wish-card.done .wish-check::after{content:'✓';color:#fff;font-size:14px;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
+.wish-card.done{opacity:.7}.wish-card.done .wish-title{text-decoration:line-through}
+
+.goals-list{display:grid;gap:1.2rem;}
+.goal-card{background:#fff;border-radius:16px;padding:1.5rem;box-shadow:0 4px 20px rgba(0,0,0,.08);transition:all .4s cubic-bezier(0.34, 1.56, 0.64, 1);position:relative;}
+.goal-card:hover{transform:translateY(-6px) scale(1.01);box-shadow:0 20px 40px rgba(0,0,0,.12),0 0 0 1px rgba(59,142,165,.1);}
+.goal-card:hover::before{content:'';position:absolute;inset:-2px;background:linear-gradient(135deg,var(--bl),var(--gr),var(--y));border-radius:18px;z-index:-1;opacity:.3;filter:blur(10px);}
+.goal-head{display:flex;align-items:center;gap:1rem;margin-bottom:1rem;}
+.goal-emoji{font-size:2rem}.goal-info{flex:1}
+.goal-name{font-family:'Indie Flower',cursive;font-size:1.2rem;color:var(--dk)}.goal-dl{font-size:.75rem;color:var(--br)}
+.prog-bar{width:100%;height:12px;background:#f0e8d8;border-radius:6px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:6px;transition:width 1s ease;}
+.prog-fill.red{background:linear-gradient(90deg,var(--r),#e85d6a)}.prog-fill.blue{background:linear-gradient(90deg,var(--bl),#5cb3c9)}.prog-fill.green{background:linear-gradient(90deg,var(--gr),#7db87c)}.prog-fill.yellow{background:linear-gradient(90deg,#d4a017,var(--y))}
+.prog-pct{font-family:'Indie Flower',cursive;font-size:.9rem;color:var(--br);text-align:right;margin-top:.3rem;}
+
+.mood-box{background:#fff;border-radius:20px;padding:1.5rem;box-shadow:0 8px 32px rgba(0,0,0,.1);text-align:center;}
+.mood-q{font-family:'Indie Flower',cursive;font-size:1.3rem;color:var(--dk);margin-bottom:1.2rem}
+.mood-opts{display:flex;justify-content:center;gap:.8rem;flex-wrap:wrap;margin-bottom:1.5rem}
+.mood-btn{width:60px;height:60px;border-radius:50%;border:3px solid #e8e0d0;background:#fff;font-size:1.8rem;cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center;}
+.mood-btn:hover{transform:scale(1.2);border-color:var(--y)}
+.mood-btn.sel{border-color:var(--r);background:var(--sk);transform:scale(1.15);box-shadow:0 4px 12px rgba(204,41,54,.2)}
+.mood-hist{display:flex;justify-content:center;gap:6px;flex-wrap:wrap;margin-top:1rem}
+.mood-dot{width:36px;height:36px;border-radius:50%;background:var(--cr);display:flex;align-items:center;justify-content:center;font-size:1rem;border:2px solid #e8e0d0;}
+
+.stk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:1rem;margin-top:1rem;}
+.stk{aspect-ratio:1;background:#fff;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:2.5rem;box-shadow:0 4px 20px rgba(0,0,0,.08);cursor:pointer;transition:all .3s;border:2px solid transparent;}
+.stk:hover{transform:scale(1.1) rotate(-5deg);border-color:var(--y);box-shadow:0 8px 32px rgba(0,0,0,.1)}
+.stk.got{background:linear-gradient(135deg,var(--sk),#fff);border-color:var(--bl)}
+.stk-count{font-family:'Indie Flower',cursive;font-size:1.1rem;color:var(--br);margin-top:1rem;text-align:center;}
+
+.btn-add{display:block;margin:1.5rem auto 0;padding:.8rem 2rem;background:var(--r);color:#fff;border:none;border-radius:25px;font-family:'Indie Flower',cursive;font-size:1.1rem;cursor:pointer;transition:all .3s;box-shadow:0 4px 12px rgba(204,41,54,.3);}
+.btn-add:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(204,41,54,.4)}
+.del-btn{position:absolute;top:8px;right:12px;background:none;border:none;color:#ccc;cursor:pointer;font-size:1.2rem;transition:color .3s;padding:4px;}.del-btn:hover{color:var(--r)}
+
+.modal-ov{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);z-index:1000;align-items:center;justify-content:center;padding:1rem;opacity:0;transition:opacity .3s ease;}.modal-ov.on{display:flex;opacity:1;}
+.modal{background:rgba(255,255,255,.85);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border-radius:20px;padding:2rem;width:100%;max-width:480px;box-shadow:0 25px 50px rgba(0,0,0,.25),0 0 0 1px rgba(255,255,255,.5) inset;border:1px solid rgba(255,255,255,.3);animation:pop .4s cubic-bezier(0.34, 1.56, 0.64, 1);max-height:90vh;overflow-y:auto;}
+@keyframes pop{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+.modal h3{font-family:'Indie Flower',cursive;font-size:1.6rem;color:var(--dk);margin-bottom:1rem;text-align:center}
+.fg{margin-bottom:1rem}.fg label{display:block;font-family:'Indie Flower',cursive;font-size:1rem;color:var(--br);margin-bottom:.3rem}
+.fg input,.fg textarea,.fg select{width:100%;padding:.7rem 1rem;border:2px solid #e0d8c8;border-radius:12px;font-family:'Comic Neue',sans-serif;font-size:.9rem;transition:border-color .3s;background:var(--cr);}
+.fg input:focus,.fg textarea:focus,.fg select:focus{outline:none;border-color:var(--r)}.fg textarea{resize:vertical;min-height:80px}
+.modal-acts{display:flex;gap:.8rem;margin-top:1.5rem}
+.btn-sv{flex:1;padding:.7rem;background:var(--r);color:#fff;border:none;border-radius:12px;font-family:'Indie Flower',cursive;font-size:1.05rem;cursor:pointer;transition:all .3s}
+.btn-cn{padding:.7rem 1.2rem;background:none;border:2px solid #ddd;border-radius:12px;font-family:'Indie Flower',cursive;font-size:1.05rem;cursor:pointer;color:#888;transition:all .3s}
+.btn-sv:hover{background:#b02230}.btn-cn:hover{border-color:#bbb}
+
+.footer{text-align:center;padding:2rem;position:relative;z-index:1;}
+.footer-text{font-family:'Indie Flower',cursive;font-size:1.3rem;color:var(--br)}
+.footer img{height:80px;margin-top:.5rem;filter:drop-shadow(0 3px 6px rgba(0,0,0,.1));}
+
+.snoopy-quote-box{background:linear-gradient(135deg,var(--sk),#fff);border-radius:20px;padding:1.5rem;margin:1rem auto;max-width:600px;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.08);position:relative;border:2px solid var(--sk);}
+.quote-text{font-family:'Indie Flower',cursive;font-size:1.4rem;color:var(--dk);margin-bottom:.5rem;line-height:1.4;min-height:3.5rem;}
+.quote-text::after{content:'|';animation:blink 1s infinite;margin-left:2px;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.quote-author{font-family:'Indie Flower',cursive;font-size:1rem;color:var(--br);opacity:.8;}
+.refresh-quote{position:absolute;top:10px;right:10px;background:none;border:none;font-size:1.2rem;cursor:pointer;opacity:.5;transition:all .3s;padding:5px;}
+.refresh-quote:hover{opacity:1;transform:rotate(180deg);}
+.week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;padding:1rem;}
+.week-d{background:#fff;border-radius:12px;padding:1rem;min-height:120px;border:2px solid var(--sk);transition:all .3s;cursor:pointer;}
+.week-d:hover{border-color:var(--y);transform:translateY(-3px);}
+.week-d.today{background:var(--sk);border-color:var(--bl);}
+.week-dn{text-align:center;font-family:'Indie Flower',cursive;font-size:.9rem;color:var(--br);font-weight:600;margin-bottom:.5rem;}
+.week-date{text-align:center;font-size:1.1rem;font-weight:700;color:var(--dk);margin-bottom:.5rem;}
+.week-ev{font-size:.8rem;color:#555;background:var(--y);padding:.3rem .5rem;border-radius:8px;margin-top:.3rem;word-break:break-word;}
+
+@media(max-width:600px){.title{font-size:2rem}.header-imgs img{height:70px}.nav-tab{padding:.45rem .7rem;font-size:.82rem}.wish-grid{grid-template-columns:1fr 1fr}.mood-btn{width:50px;height:50px;font-size:1.4rem}.stk-grid{grid-template-columns:repeat(auto-fill,minmax(70px,1fr))}.snoopy-deco img{height:70px}}
+</style>
+</head>
+<body>
+
+<div class="clouds-bg" id="clouds"></div>
+
+<header class="header">
+  <div class="header-imgs">
+    <img src="https://pngimg.com/uploads/snoopy/snoopy_PNG33.png" alt="Snoopy">
+    <img src="https://pngimg.com/uploads/snoopy/snoopy_PNG98.png" alt="Snoopy">
+    <img src="https://pngimg.com/uploads/snoopy/snoopy_PNG95.png" alt="Snoopy">
+    <img src="https://pngimg.com/uploads/snoopy/snoopy_PNG67.png" alt="Snoopy">
+    <img src="https://pngimg.com/uploads/snoopy/snoopy_PNG45.png" alt="Snoopy">
+  </div>
+  <h1 class="title">Mi <span>Agenda</span> Snoopy</h1>
+  <p class="subtitle">~ organiza tu vida con mucho estilo ~</p>
+  <div class="hearts-row"><div class="mh"></div><div class="mh"></div><div class="mh"></div></div>
+</header>
+
+<div class="snoopy-quote-box" id="quoteBox">
+  <button class="refresh-quote" onclick="showQuote()" title="Nueva frase">🔄</button>
+  <p class="quote-text" id="quoteText">Cargando...</p>
+  <p class="quote-author" id="quoteAuthor">- Snoopy</p>
+</div>
+
+<nav class="nav">
+  <button class="nav-tab active" data-s="calendario">Calendario</button>
+  <button class="nav-tab" data-s="notas">Notas</button>
+  <button class="nav-tab" data-s="deseos">Mi Wishlist</button>
+  <button class="nav-tab" data-s="metas">Metas</button>
+</nav>
+
+<main class="main">
+  <section class="sec active" id="calendario">
+    <h2 class="sec-title">Mi Calendario</h2>
+    <div class="cal-box">
+      <div class="cal-head">
+        <button class="cal-nav" id="prevM">‹</button>
+        <h3 id="calT"></h3>
+        <div class="view-toggle">
+          <button class="view-btn active" id="btnMes" onclick="setCalView('month')">Mes</button>
+          <button class="view-btn" id="btnSem" onclick="setCalView('week')">Semana</button>
+        </div>
+        <button class="cal-nav" id="nextM">›</button>
+      </div>
+      <div class="cal-grid" id="calG"></div>
+      <div class="week-grid" id="weekG" style="display:none;"></div>
+    </div>
+    <div class="snoopy-deco">
+      <img src="https://pngimg.com/uploads/snoopy/snoopy_PNG84.png" alt="Snoopy">
+      <img src="https://pngimg.com/uploads/snoopy/snoopy_PNG38.png" alt="Snoopy">
+      <img src="https://pngimg.com/uploads/snoopy/snoopy_PNG59.png" alt="Snoopy">
+    </div>
+  </section>
+
+  <section class="sec" id="notas">
+    <h2 class="sec-title">Mis Notas</h2>
+    <div class="notes-list" id="notesCont"></div>
+    <button class="btn-add" onclick="openM('noteM')">+ Nueva Nota</button>
+    <div class="snoopy-deco">
+      <img src="https://pngimg.com/uploads/snoopy/snoopy_PNG97.png" alt="Snoopy">
+      <img src="https://pngimg.com/uploads/snoopy/snoopy_PNG40.png" alt="Snoopy">
+    </div>
+  </section>
+
+  <section class="sec" id="deseos">
+    <h2 class="sec-title">Mi Wishlist</h2>
+    <p style="text-align:center;font-family:'Indie Flower',cursive;color:var(--br);margin-bottom:1rem;">Todas las cositas que quiero para mi ♡</p>
+    <div class="wish-grid" id="wishG"></div>
+    <button class="btn-add" onclick="openM('wishM')">+ Nuevo Deseo</button>
+    <div class="snoopy-deco">
+      <img src="https://pngimg.com/uploads/snoopy/snoopy_PNG96.png" alt="Snoopy">
+      <img src="https://pngimg.com/uploads/snoopy/snoopy_PNG53.png" alt="Snoopy">
+      <img src="https://pngimg.com/uploads/snoopy/snoopy_PNG61.png" alt="Snoopy">
+    </div>
+  </section>
+
+  <section class="sec" id="metas">
+    <h2 class="sec-title">Mis Metas</h2>
+    <div class="goals-list" id="goalsCont"></div>
+    <button class="btn-add" onclick="openM('goalM')">+ Nueva Meta</button>
+    <div class="snoopy-deco">
+      <img src="https://pngimg.com/uploads/snoopy/snoopy_PNG82.png" alt="Snoopy">
+      <img src="https://pngimg.com/uploads/snoopy/snoopy_PNG35.png" alt="Snoopy">
+      <img src="https://pngimg.com/uploads/snoopy/snoopy_PNG49.png" alt="Snoopy">
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <p class="footer-text">happiness is a warm puppy ♡</p>
+  <div style="display:flex;justify-content:center;gap:1rem;flex-wrap:wrap;margin-top:1rem;">
+    <img src="https://pngimg.com/uploads/snoopy/snoopy_PNG33.png" alt="Snoopy" style="height:60px;opacity:.5;">
+    <img src="https://pngimg.com/uploads/snoopy/snoopy_PNG71.png" alt="Snoopy" style="height:55px;opacity:.6;">
+    <img src="https://pngimg.com/uploads/snoopy/snoopy_PNG88.png" alt="Snoopy" style="height:50px;opacity:.5;">
+  </div>
+</footer>
+
+<!-- MODALS -->
+<div class="modal-ov" id="noteM"><div class="modal"><h3>Nueva Nota ♡</h3>
+  <div class="fg"><label>Titulo</label><input type="text" id="nTitle" placeholder="Mi nota..."></div>
+  <div class="fg"><label>Contenido</label><textarea id="nContent" placeholder="Escribe aqui..."></textarea></div>
+  <div class="fg"><label>Etiqueta</label><select id="nTag"><option value="love">♡ Favorito</option><option value="fun">★ Diversion</option><option value="goal">◎ Importante</option><option value="idea">✦ Idea</option></select></div>
+  <div class="modal-acts"><button class="btn-cn" onclick="closeM('noteM')">Cancelar</button><button class="btn-sv" onclick="saveNote()">Guardar ♡</button></div>
+</div></div>
+
+<div class="modal-ov" id="wishM"><div class="modal"><h3>Nuevo Deseo ✨</h3>
+  <div class="fg"><label>¿Que quiero?</label><input type="text" id="wTitle" placeholder="Algo que quiero mucho..."></div>
+  <div class="fg"><label>Detalles</label><input type="text" id="wDesc" placeholder="Color, talla, link, tienda..."></div>
+  <div class="fg"><label>Categoria</label><select id="wIcon"><option value="👗">👗 Ropa</option><option value="👟">👟 Zapatos</option><option value="💄">💄 Maquillaje</option><option value="🎧">🎧 Tech</option><option value="📚">📚 Libro</option><option value="🍰">🍰 Comida</option><option value="✈️">✈️ Viaje</option><option value="🎁">🎁 Regalo</option><option value="🌸">🌸 Skincare</option><option value="🎵">🎵 Musica</option><option value="🐾">🐾 Mascota</option><option value="🏠">🏠 Hogar</option><option value="💝">💝 Otro</option></select></div>
+  <div class="fg"><label>Prioridad</label><select id="wPrio"><option value="🔥 Lo necesito ya">🔥 Lo necesito ya</option><option value="⭐ Lo quiero mucho">⭐ Lo quiero mucho</option><option value="💭 Algun dia">💭 Algun dia</option></select></div>
+  <div class="modal-acts"><button class="btn-cn" onclick="closeM('wishM')">Cancelar</button><button class="btn-sv" onclick="saveWish()">Guardar</button></div>
+</div></div>
+
+<div class="modal-ov" id="goalM"><div class="modal"><h3>Nueva Meta 🎯</h3>
+  <div class="fg"><label>Mi meta</label><input type="text" id="gName" placeholder="Lo que quiero lograr..."></div>
+  <div class="fg"><label>Emoji</label><select id="gEmoji"><option value="📖">📖 Libro</option><option value="🏃‍♀️">🏃‍♀️ Ejercicio</option><option value="💧">💧 Agua</option><option value="🌱">🌱 Crecimiento</option><option value="💪">💪 Fuerza</option><option value="🎯">🎯 Objetivo</option><option value="🌟">🌟 Brillar</option><option value="🎨">🎨 Arte</option><option value="💰">💰 Dinero</option><option value="🧘">🧘 Meditación</option><option value="✨">✨ Magia</option><option value="📚">📚 Estudio</option><option value="🎵">🎵 Música</option><option value="❤️">❤️ Salud</option><option value="✈️">✈️ Viaje</option><option value="🏠">🏠 Hogar</option><option value="🍎">🍎 Comida</option><option value="💤">💤 Descanso</option><option value="📝">📝 Escribir</option><option value="🎸">🎸 Instrumento</option></select></div>
+  <div class="fg"><label>Fecha limite</label><input type="date" id="gDL"></div>
+  <div class="fg"><label>Progreso (%)</label><input type="range" id="gProg" min="0" max="100" value="0" step="5" oninror="document.getElementById('gProgL').textContent=this.value+'%'" oninput="document.getElementById('gProgL').textContent=this.value+'%'"><span id="gProgL" style="font-family:'Indie Flower',cursive;">0%</span></div>
+  <div class="modal-acts"><button class="btn-cn" onclick="closeM('goalM')">Cancelar</button><button class="btn-sv" onclick="saveGoal()">Guardar</button></div>
+</div></div>
+
+<script>
+const LS='snpAgd_';
+const ld=(k,d)=>{try{return JSON.parse(localStorage.getItem(LS+k))||d}catch{return d}};
+const sv=(k,v)=>localStorage.setItem(LS+k,JSON.stringify(v));
+
+// Clouds
+(()=>{const c=document.getElementById('clouds');for(let i=0;i<8;i++){const d=document.createElement('div');d.className='cloud';const s=60+Math.random()*120;d.style.width=s+'px';d.style.height=(s*.5)+'px';d.style.top=(Math.random()*40)+'%';d.style.animationDuration=(25+Math.random()*40)+'s';d.style.animationDelay=(-Math.random()*40)+'s';c.appendChild(d);}})();
+
+// Nav
+document.querySelectorAll('.nav-tab').forEach(t=>t.addEventListener('click',()=>{
+  document.querySelectorAll('.nav-tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.sec').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');document.getElementById(t.dataset.s).classList.add('active');
+}));
+
+// Calendar
+let cDate=new Date();
+let calView='month';
+const mN=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const dN=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+let evts=ld('evts',{});
+function setCalView(v){calView=v;document.getElementById('btnMes').classList.toggle('active',v==='month');document.getElementById('btnSem').classList.toggle('active',v==='week');document.getElementById('calG').style.display=v==='month'?'grid':'none';document.getElementById('weekG').style.display=v==='week'?'grid':'none';renderCal();}
+function renderWeek(){const g=document.getElementById('weekG'),y=cDate.getFullYear(),m=cDate.getMonth(),d=cDate.getDate();g.innerHTML='';const sow=new Date(y,m,d);sow.setDate(d-sow.getDay());for(let i=0;i<7;i++){const cd=new Date(sow);cd.setDate(sow.getDate()+i);const k=`${cd.getFullYear()}-${cd.getMonth()}-${cd.getDate()}`;const isToday=cd.toDateString()===new Date().toDateString();const e=document.createElement('div');e.className='week-d'+(isToday?' today':'');e.innerHTML=`<div class="week-dn">${dN[i]}</div><div class="week-date">${cd.getDate()}</div>${evts[k]?`<div class="week-ev">${evts[k]}</div>`:''}`;e.addEventListener('click',()=>{if(evts[k]){alert('Evento: '+evts[k]);const del=confirm('¿Eliminar este evento?');if(del){delete evts[k];sv('evts',evts);renderCal();}}else{const ev=prompt('Agrega un evento:');if(ev){evts[k]=ev;sv('evts',evts);renderCal();}}});g.appendChild(e);}document.getElementById('calT').textContent=`Semana del ${sow.getDate()} ${mN[sow.getMonth()]} - ${cd.getDate()} ${mN[cd.getMonth()]}`;}
+function renderCal(){if(calView==='week'){renderWeek();return;}const g=document.getElementById('calG'),y=cDate.getFullYear(),m=cDate.getMonth();document.getElementById('calT').textContent=`${mN[m]} ${y}`;g.innerHTML='';dN.forEach(d=>{const e=document.createElement('div');e.className='cal-dn';e.textContent=d;g.appendChild(e);});const f=new Date(y,m,1).getDay(),dim=new Date(y,m+1,0).getDate(),pd=new Date(y,m,0).getDate(),td=new Date();for(let i=f-1;i>=0;i--){const e=document.createElement('div');e.className='cal-d om';e.textContent=pd-i;g.appendChild(e);}for(let d=1;d<=dim;d++){const e=document.createElement('div');e.className='cal-d';e.textContent=d;const k=`${y}-${m}-${d}`;if(evts[k])e.classList.add('has-ev');if(d===td.getDate()&&m===td.getMonth()&&y===td.getFullYear())e.classList.add('today');e.addEventListener('click',()=>{if(evts[k]){alert('Evento: '+evts[k]);const del=confirm('¿Eliminar este evento?');if(del){delete evts[k];sv('evts',evts);renderCal();}}else{const ev=prompt('Agrega un evento:');if(ev){evts[k]=ev;sv('evts',evts);renderCal();}}});g.appendChild(e);}const tc=f+dim,rm=7-(tc%7);if(rm<7)for(let i=1;i<=rm;i++){const e=document.createElement('div');e.className='cal-d om';e.textContent=i;g.appendChild(e);}}
+document.getElementById('prevM').onclick=()=>{if(calView==='week')cDate.setDate(cDate.getDate()-7);else cDate.setMonth(cDate.getMonth()-1);renderCal();};
+document.getElementById('nextM').onclick=()=>{if(calView==='week')cDate.setDate(cDate.getDate()+7);else cDate.setMonth(cDate.getMonth()+1);renderCal();};
+renderCal();
+
+// Notes
+let notes=ld('notes',[{title:'Recordatorio importante',text:'No olvides que eres increible y que puedes con todo ✨',tag:'goal',date:'Siempre'},{title:'Ideas para el finde',text:'Ir al cafe nuevo, ver una peli, leer ese libro pendiente',tag:'fun',date:'Este finde'},{title:'Cosas que me hacen feliz',text:'El olor a cafe, los atardeceres, las canciones que me gustan, los dias de lluvia',tag:'love',date:'Siempre'}]);
+const tagL={love:'♡ Favorito',fun:'★ Diversion',goal:'◎ Importante',idea:'✦ Idea'};
+function renderNotes(){const c=document.getElementById('notesCont');c.innerHTML='';notes.forEach((n,i)=>{c.innerHTML+=`<div class="note-card" style="animation-delay:${i*.08}s"><button class="del-btn" onclick="delNote(${i})">×</button><div class="note-head"><span class="note-t">${n.title}</span><span class="note-date">${n.date}</span></div><p class="note-text">${n.text}</p><span class="note-tag tag-${n.tag}">${tagL[n.tag]||n.tag}</span></div>`;});}
+function saveNote(){const t=document.getElementById('nTitle').value.trim(),x=document.getElementById('nContent').value.trim(),tg=document.getElementById('nTag').value;if(!t)return;notes.unshift({title:t,text:x,tag:tg,date:new Date().toLocaleDateString('es')});sv('notes',notes);renderNotes();closeM('noteM');document.getElementById('nTitle').value='';document.getElementById('nContent').value='';}
+function delNote(i){notes.splice(i,1);sv('notes',notes);renderNotes();}
+renderNotes();
+
+// Wishes
+let wishes=ld('wishes',[{title:'Esos tenis que vi',desc:'Los blancos con flores de la tienda del centro',icon:'👟',prio:'🔥 Lo necesito ya',done:false},{title:'Set de skincare coreano',desc:'Tonico, serum y crema hidratante',icon:'🌸',prio:'⭐ Lo quiero mucho',done:false},{title:'Ir a la playa',desc:'Un lugar bonito con arena y mar',icon:'✈️',prio:'💭 Algun dia',done:false},{title:'Audifonos inalambricos',desc:'Los rosados que se ven super lindos',icon:'🎧',prio:'⭐ Lo quiero mucho',done:false},{title:'Ese libro de recetas',desc:'El de postres faciles de la libreria',icon:'📚',prio:'💭 Algun dia',done:false},{title:'Paleta de sombras nueva',desc:'Tonos rosados y nudes que vi en Instagram',icon:'💄',prio:'🔥 Lo necesito ya',done:false}]);
+function renderWishes(){const g=document.getElementById('wishG');g.innerHTML='';wishes.forEach((w,i)=>{g.innerHTML+=`<div class="wish-card ${w.done?'done':''}"><div onclick="togWish(${i})"><div class="wish-icon">${w.icon}</div><div class="wish-title">${w.title}</div><div class="wish-desc">${w.desc}</div><div class="wish-prio">${w.prio||''}</div><div class="wish-check"></div></div><button class="del-btn" onclick="delWish(${i});event.stopPropagation();" style="position:absolute;top:8px;right:8px;">×</button></div>`;});}
+function delWish(i){wishes.splice(i,1);sv('wishes',wishes);renderWishes();}
+function togWish(i){wishes[i].done=!wishes[i].done;sv('wishes',wishes);renderWishes();}
+function saveWish(){const t=document.getElementById('wTitle').value.trim(),d=document.getElementById('wDesc').value.trim(),ic=document.getElementById('wIcon').value,p=document.getElementById('wPrio').value;if(!t)return;wishes.push({title:t,desc:d,icon:ic,prio:p,done:false});sv('wishes',wishes);renderWishes();closeM('wishM');document.getElementById('wTitle').value='';document.getElementById('wDesc').value='';}
+renderWishes();
+
+// Goals
+const gColors=['red','blue','green','yellow'];const gEmojis=['🎯','💪','📖','🌟','🏃‍♀️','🎨','💰','🧘','✨','🌱'];
+let goals=ld('goals',[{name:'Leer 12 libros este año',deadline:'2026-12-31',progress:25,emoji:'📖'},{name:'Hacer ejercicio 3 veces por semana',deadline:'2026-06-30',progress:60,emoji:'🏃‍♀️'},{name:'Aprender algo nuevo cada mes',deadline:'2026-12-31',progress:30,emoji:'🌱'},{name:'Tomar mas agua todos los dias',deadline:'2026-12-31',progress:45,emoji:'💧'}]);
+function renderGoals(){const c=document.getElementById('goalsCont');c.innerHTML='';goals.forEach((g,i)=>{const cl=gColors[i%gColors.length];c.innerHTML+=`<div class="goal-card"><button class="del-btn" onclick="delGoal(${i})">×</button><div class="goal-head" onclick="editGoal(${i})" style="cursor:pointer;"><span class="goal-emoji">${g.emoji||gEmojis[i%gEmojis.length]}</span><div class="goal-info"><div class="goal-name">${g.name}</div><div class="goal-dl">Meta: ${g.deadline||'Sin fecha'}</div></div></div><div class="prog-bar" onclick="editGoal(${i})" style="cursor:pointer;"><div class="prog-fill ${cl}" style="width:${g.progress}%"></div></div><div class="prog-pct">${g.progress}% - Click para editar</div></div>`;});}
+function saveGoal(){const n=document.getElementById('gName').value.trim(),dl=document.getElementById('gDL').value,p=parseInt(document.getElementById('gProg').value),emj=document.getElementById('gEmoji').value;if(!n)return;goals.push({name:n,deadline:dl,progress:p,emoji:emj});sv('goals',goals);renderGoals();closeM('goalM');document.getElementById('gName').value='';document.getElementById('gProg').value=0;document.getElementById('gProgL').textContent='0%';}
+function delGoal(i){goals.splice(i,1);sv('goals',goals);renderGoals();}
+let editingGoalIndex=-1;
+function editGoal(i){editingGoalIndex=i;const g=goals[i];document.getElementById('gName').value=g.name;document.getElementById('gDL').value=g.deadline||'';document.getElementById('gProg').value=g.progress;document.getElementById('gProgL').textContent=g.progress+'%';document.getElementById('gEmoji').value=g.emoji||'📖';document.getElementById('goalM').querySelector('h3').textContent='Editar Meta 🎯';document.getElementById('goalM').querySelector('.btn-sv').setAttribute('onclick','saveEditGoal()');openM('goalM');}
+function saveEditGoal(){const n=document.getElementById('gName').value.trim(),dl=document.getElementById('gDL').value,p=parseInt(document.getElementById('gProg').value),emj=document.getElementById('gEmoji').value;if(!n)return;goals[editingGoalIndex].name=n;goals[editingGoalIndex].deadline=dl;goals[editingGoalIndex].progress=p;goals[editingGoalIndex].emoji=emj;sv('goals',goals);renderGoals();closeM('goalM');document.getElementById('gName').value='';document.getElementById('gProg').value=0;document.getElementById('gProgL').textContent='0%';document.getElementById('goalM').querySelector('h3').textContent='Nueva Meta 🎯';document.getElementById('goalM').querySelector('.btn-sv').setAttribute('onclick','saveGoal()');editingGoalIndex=-1;}
+renderGoals();
+
+// Modals
+function openM(id){document.getElementById(id).classList.add('on');}
+function closeM(id){document.getElementById(id).classList.remove('on');}
+
+// Snoopy Quotes
+const snoopyQuotes=[
+{text:"Happiness is a warm puppy.",author:"Charles M. Schulz"},
+{text:"Puchi, el café huele mejor cuando pienso en ti.",author:"Snoopy"},
+{text:"Hoy sería un buen día para tomar un café contigo, Puchi.",author:"Snoopy"},
+{text:"A veces solo necesito una siesta... y un abrazo tuyo, Puchi.",author:"Snoopy"},
+{text:"Puchi, incluso los días nublados se ven mejor cuando sonríes.",author:"Snoopy"},
+{text:"Tengo tres cosas en mi lista: desayunar, almorzar y pensar en ti, Puchi.",author:"Snoopy"},
+{text:"Puchi, no hay nada más bonito que tu risa desordenada.",author:"Snoopy"},
+{text:"¿Sabías que duermo mejor cuando sé que estás bien? Cuídate, Puchi.",author:"Snoopy"},
+{text:"Puchi, si fueras una canción, sería mi favorita en repeat.",author:"Snoopy"},
+{text:"Los lunes son menos lunes cuando sé que te veré, Puchi.",author:"Snoopy"},
+{text:"Puchi, tu nombre cabe perfecto en cualquier pensamiento bonito.",author:"Snoopy"},
+{text:"A veces escribo tu nombre en la nieve... bueno, intento. Las patitas no ayudan.",author:"Snoopy"},
+{text:"Puchi, eres ese tipo de persona que hace que quieras ser mejor versión de ti mismo.",author:"Snoopy"},
+{text:"No necesito que el día sea perfecto, solo que tú estés en él, Puchi.",author:"Snoopy"},
+{text:"Puchi, me gusta cómo haces que las cosas simples se sientan especiales.",author:"Snoopy"},
+{text:"¿Sabes qué pienso cuando veo las estrellas? Que una de ellas debe ser tú, brillando.",author:"Snoopy"},
+{text:"Puchi, a veces solo quiero sentarme contigo en silencio y que eso sea suficiente.",author:"Snoopy"},
+{text:"El mundo es caótico, pero tú eres mi parte tranquila, Puchi.",author:"Snoopy"},
+{text:"Puchi, si pudiera guardar un recuerdo en mi casita, sería tu voz diciendo mi nombre.",author:"Snoopy"},
+{text:"Hay algo en ti, Puchi, que me hace querer contarte todo y nada al mismo tiempo.",author:"Snoopy"},
+{text:"Puchi, prefiero mil momentos aburridos contigo que uno solo sin ti.",author:"Snoopy"},
+{text:"Eres mi razón para levantar la cola feliz cada mañana, Puchi.",author:"Snoopy"},
+{text:"Puchi, no sé mucho de amor, pero sé que me gusta cuando estás cerca.",author:"Snoopy"},
+{text:"A veces me pregunto qué haré hoy... y la respuesta siempre es: extrañarte un poco menos.",author:"Snoopy"},
+{text:"Puchi, tú eres el tipo de suerte que no sabía que necesitaba.",author:"Snoopy"},
+{text:"Si te escribiera una carta, diría: 'Gracias por existir', y luego lloraría un poco.",author:"Snoopy"},
+{text:"Puchi, no importa dónde esté, siempre hay un pensamiento de ti dando vueltas.",author:"Snoopy"},
+{text:"Hay días que no quiero hacer nada... excepto escucharte hablar de tu día, Puchi.",author:"Snoopy"},
+{text:"Puchi, tu nombre es mi palabra favorita.",author:"Snoopy"},
+{text:"Eres como ese café perfecto: calienta, reconforta y no puedo dejar de querer más.",author:"Snoopy"},
+{text:"Puchi, si el amor fuera un abrazo, el tuyo sería mi favorito.",author:"Snoopy"}
+];
+function showQuote(){const q=snoopyQuotes[Math.floor(Math.random()*snoopyQuotes.length)];const qt=document.getElementById('quoteText');const qa=document.getElementById('quoteAuthor');qt.textContent='';qa.textContent='';const txt=q.text;let i=0;const typeWriter=()=>{if(i<=txt.length){qt.textContent=txt.substring(0,i);i++;setTimeout(typeWriter,35);}else{qa.textContent='- '+q.author;}};typeWriter();}showQuote();
+
+// Paw prints on click
+document.addEventListener('click',e=>{if(e.target.closest('.modal-ov')||e.target.closest('.modal'))return;const p=document.createElement('div');p.style.cssText=`position:fixed;left:${e.clientX-10}px;top:${e.clientY-10}px;width:22px;height:22px;pointer-events:none;z-index:9999;opacity:1;transition:all 1s ease;`;p.innerHTML=`<svg viewBox="0 0 24 24" fill="${['#CC2936','#FFD23F','#3B8EA5','#F4A0A0','#5B8C5A'][Math.floor(Math.random()*5)]}" opacity="0.5"><ellipse cx="12" cy="16" rx="5" ry="4"/><circle cx="7" cy="10" r="2.2"/><circle cx="17" cy="10" r="2.2"/><circle cx="9.5" cy="7" r="2"/><circle cx="14.5" cy="7" r="2"/></svg>`;document.body.appendChild(p);setTimeout(()=>{p.style.opacity='0';p.style.transform='translateY(-20px) scale(0.5)';},50);setTimeout(()=>p.remove(),1100);});
+</script>
+</body>
+</html>
